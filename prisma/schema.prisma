@@ -1,0 +1,35 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model GamanTarget {
+  id          String       @id @default(cuid())
+  userId      String
+  name        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  dailyCounts DailyCount[]
+
+  @@index([userId, createdAt])
+}
+
+model DailyCount {
+  id        String      @id @default(cuid())
+  userId    String
+  targetId  String
+  dateKey   String      @db.VarChar(10)
+  count     Int         @default(0)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  target    GamanTarget @relation(fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@unique([targetId, dateKey])
+  @@index([userId, dateKey])
+}

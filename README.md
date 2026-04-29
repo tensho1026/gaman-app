@@ -1,0 +1,29 @@
+# 我慢カウンター
+
+我慢するものを登録し、今日「我慢できなかった回数」をカウントする Next.js アプリです。Clerk で認証し、Neon PostgreSQL に Prisma で保存します。
+
+## セットアップ
+
+1. `.env.example` を参考に `.env` を作成
+2. Neon の `DATABASE_URL` と Clerk のキーを設定
+3. 依存関係をインストール
+4. DB にテーブルを作成
+5. 開発サーバーを起動
+
+```bash
+npm install
+npm run prisma:migrate
+npm run dev
+```
+
+## 主なコマンド
+
+```bash
+npm run dev
+npm run build
+npm run typecheck
+npm run prisma:generate
+npm run prisma:studio
+```
+
+Prisma 7 の構成に合わせて、接続 URL は `prisma.config.ts` と Neon adapter が `DATABASE_URL` から読みます。
