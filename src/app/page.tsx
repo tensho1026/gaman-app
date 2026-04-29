@@ -1,9 +1,15 @@
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
-import { CalendarDays, Minus, Plus } from "lucide-react";
+import { CalendarDays, Minus, Plus, Trash2 } from "lucide-react";
 import { redirect } from "next/navigation";
 
-import { createTarget, decrementToday, incrementToday, setTodayCount } from "@/app/actions";
+import {
+  createTarget,
+  decrementToday,
+  deleteTarget,
+  incrementToday,
+  setTodayCount
+} from "@/app/actions";
 import { getDashboardData } from "@/lib/dashboard";
 
 function formatAverage(value: number) {
@@ -76,7 +82,19 @@ export default async function Home() {
                     <h2>{target.name}</h2>
                     <p>開始 {target.createdDateKey}</p>
                   </div>
-                  <span className="today-badge">今日</span>
+                  <div className="target-card-actions">
+                    <span className="today-badge">今日</span>
+                    <form action={deleteTarget.bind(null, target.id)}>
+                      <button
+                        type="submit"
+                        className="delete-button"
+                        aria-label={`${target.name}を削除`}
+                        title="削除"
+                      >
+                        <Trash2 aria-hidden="true" size={18} />
+                      </button>
+                    </form>
+                  </div>
                 </div>
 
                 <div className="counter-row">
@@ -178,6 +196,31 @@ export default async function Home() {
                   })}
                 </tbody>
               </table>
+            </div>
+            <div className="mobile-history-list">
+              {dashboard.historyKeys.map((dateKey) => {
+                const dailyTotal = dashboard.targets.reduce(
+                  (sum, target) => sum + (target.countsByDate.get(dateKey) ?? 0),
+                  0
+                );
+
+                return (
+                  <article className="history-day-card" key={dateKey}>
+                    <div className="history-day-header">
+                      <h3>{dashboard.historyLabels.get(dateKey)}</h3>
+                      <strong>{dailyTotal}回</strong>
+                    </div>
+                    <dl>
+                      {dashboard.targets.map((target) => (
+                        <div key={target.id}>
+                          <dt>{target.name}</dt>
+                          <dd>{target.countsByDate.get(dateKey) ?? 0}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </article>
+                );
+              })}
             </div>
           </section>
         </>

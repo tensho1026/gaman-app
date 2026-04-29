@@ -65,6 +65,19 @@ export async function createTarget(formData: FormData) {
   revalidatePath("/");
 }
 
+export async function deleteTarget(targetId: string) {
+  const userId = await requireUserId();
+
+  await prisma.gamanTarget.deleteMany({
+    where: {
+      id: targetId,
+      userId
+    }
+  });
+
+  revalidatePath("/");
+}
+
 export async function incrementToday(targetId: string) {
   const userId = await requireUserId();
   await assertOwnedTarget(userId, targetId);
