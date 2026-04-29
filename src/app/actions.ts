@@ -37,16 +37,6 @@ function readTargetName(formData: FormData) {
   return name.slice(0, 80);
 }
 
-function readCount(formData: FormData) {
-  const count = Number.parseInt(String(formData.get("count") ?? "0"), 10);
-
-  if (!Number.isFinite(count)) {
-    return 0;
-  }
-
-  return Math.min(9999, Math.max(0, count));
-}
-
 export async function createTarget(formData: FormData) {
   const userId = await requireUserId();
   const name = readTargetName(formData);
@@ -126,46 +116,6 @@ export async function decrementToday(targetId: string) {
       }
     }
   });
-
-  revalidatePath("/");
-}
-
-export async function setTodayCount(formData: FormData) {
-  const userId = await requireUserId();
-  const targetId = String(formData.get("targetId") ?? "");
-  const count = readCount(formData);
-
-  await assertOwnedTarget(userId, targetId);
-
-  const dateKey = getDateKey();
-
-  if (count === 0) {
-    await prisma.dailyCount.deleteMany({
-      where: {
-        userId,
-        targetId,
-        dateKey
-      }
-    });
-  } else {
-    await prisma.dailyCount.upsert({
-      where: {
-        targetId_dateKey: {
-          targetId,
-          dateKey
-        }
-      },
-      create: {
-        userId,
-        targetId,
-        dateKey,
-        count
-      },
-      update: {
-        count
-      }
-    });
-  }
 
   revalidatePath("/");
 }

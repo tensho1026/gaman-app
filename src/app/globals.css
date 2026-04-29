@@ -145,8 +145,7 @@ input:focus-visible {
   gap: 10px;
 }
 
-.new-target-form input,
-.set-count-form input {
+.new-target-form input {
   width: 100%;
   min-height: 44px;
   border: 1px solid var(--line);
@@ -159,8 +158,7 @@ input:focus-visible {
   padding: 0 14px;
 }
 
-.new-target-form button,
-.set-count-form button {
+.new-target-form button {
   min-height: 44px;
   border: 0;
   border-radius: 8px;
@@ -273,25 +271,6 @@ input:focus-visible {
   font-weight: 700;
 }
 
-.set-count-form {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: end;
-}
-
-.set-count-form label {
-  display: grid;
-  gap: 6px;
-  color: var(--muted);
-  font-size: 0.84rem;
-  font-weight: 700;
-}
-
-.set-count-form input {
-  padding: 0 10px;
-}
-
 .target-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -340,6 +319,15 @@ input:focus-visible {
 
 .mobile-history-list {
   display: none;
+}
+
+.history-empty {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  padding: 18px;
+  font-weight: 700;
 }
 
 table {
@@ -474,13 +462,11 @@ tbody th {
     font-size: 2.45rem;
   }
 
-  .new-target-form,
-  .set-count-form {
+  .new-target-form {
     grid-template-columns: 1fr;
   }
 
-  .new-target-form button,
-  .set-count-form button {
+  .new-target-form button {
     width: 100%;
   }
 

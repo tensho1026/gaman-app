@@ -7,8 +7,7 @@ import {
   createTarget,
   decrementToday,
   deleteTarget,
-  incrementToday,
-  setTodayCount
+  incrementToday
 } from "@/app/actions";
 import { getDashboardData } from "@/lib/dashboard";
 
@@ -123,21 +122,6 @@ export default async function Home() {
                   </form>
                 </div>
 
-                <form action={setTodayCount} className="set-count-form">
-                  <input type="hidden" name="targetId" value={target.id} />
-                  <label>
-                    <span>今日の回数</span>
-                    <input
-                      type="number"
-                      name="count"
-                      min={0}
-                      max={9999}
-                      defaultValue={target.todayCount}
-                    />
-                  </label>
-                  <button type="submit">更新</button>
-                </form>
-
                 <dl className="target-stats">
                   <div>
                     <dt>合計</dt>
@@ -159,25 +143,49 @@ export default async function Home() {
           <section className="history-section" aria-labelledby="history-title">
             <div className="section-heading">
               <div>
-                <p className="eyebrow">過去30日</p>
+                <p className="eyebrow">過去30日の記録あり</p>
                 <h2 id="history-title">履歴</h2>
               </div>
               <CalendarDays aria-hidden="true" size={22} />
             </div>
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th scope="col">日付</th>
-                    {dashboard.targets.map((target) => (
-                      <th scope="col" key={target.id}>
-                        {target.name}
-                      </th>
-                    ))}
-                    <th scope="col">日合計</th>
-                  </tr>
-                </thead>
-                <tbody>
+            {dashboard.historyKeys.length === 0 ? (
+              <div className="history-empty">まだ履歴がありません</div>
+            ) : (
+              <>
+                <div className="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th scope="col">日付</th>
+                        {dashboard.targets.map((target) => (
+                          <th scope="col" key={target.id}>
+                            {target.name}
+                          </th>
+                        ))}
+                        <th scope="col">日合計</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dashboard.historyKeys.map((dateKey) => {
+                        const dailyTotal = dashboard.targets.reduce(
+                          (sum, target) => sum + (target.countsByDate.get(dateKey) ?? 0),
+                          0
+                        );
+
+                        return (
+                          <tr key={dateKey}>
+                            <th scope="row">{dashboard.historyLabels.get(dateKey)}</th>
+                            {dashboard.targets.map((target) => (
+                              <td key={target.id}>{target.countsByDate.get(dateKey) ?? 0}</td>
+                            ))}
+                            <td>{dailyTotal}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mobile-history-list">
                   {dashboard.historyKeys.map((dateKey) => {
                     const dailyTotal = dashboard.targets.reduce(
                       (sum, target) => sum + (target.countsByDate.get(dateKey) ?? 0),
@@ -185,43 +193,25 @@ export default async function Home() {
                     );
 
                     return (
-                      <tr key={dateKey}>
-                        <th scope="row">{dashboard.historyLabels.get(dateKey)}</th>
-                        {dashboard.targets.map((target) => (
-                          <td key={target.id}>{target.countsByDate.get(dateKey) ?? 0}</td>
-                        ))}
-                        <td>{dailyTotal}</td>
-                      </tr>
+                      <article className="history-day-card" key={dateKey}>
+                        <div className="history-day-header">
+                          <h3>{dashboard.historyLabels.get(dateKey)}</h3>
+                          <strong>{dailyTotal}回</strong>
+                        </div>
+                        <dl>
+                          {dashboard.targets.map((target) => (
+                            <div key={target.id}>
+                              <dt>{target.name}</dt>
+                              <dd>{target.countsByDate.get(dateKey) ?? 0}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </article>
                     );
                   })}
-                </tbody>
-              </table>
-            </div>
-            <div className="mobile-history-list">
-              {dashboard.historyKeys.map((dateKey) => {
-                const dailyTotal = dashboard.targets.reduce(
-                  (sum, target) => sum + (target.countsByDate.get(dateKey) ?? 0),
-                  0
-                );
-
-                return (
-                  <article className="history-day-card" key={dateKey}>
-                    <div className="history-day-header">
-                      <h3>{dashboard.historyLabels.get(dateKey)}</h3>
-                      <strong>{dailyTotal}回</strong>
-                    </div>
-                    <dl>
-                      {dashboard.targets.map((target) => (
-                        <div key={target.id}>
-                          <dt>{target.name}</dt>
-                          <dd>{target.countsByDate.get(dateKey) ?? 0}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </article>
-                );
-              })}
-            </div>
+                </div>
+              </>
+            )}
           </section>
         </>
       )}

@@ -5,7 +5,7 @@ const HISTORY_LENGTH = 30;
 
 export async function getDashboardData(userId: string) {
   const todayKey = getDateKey();
-  const historyKeys = getRecentDateKeys(todayKey, HISTORY_LENGTH);
+  const recentKeys = getRecentDateKeys(todayKey, HISTORY_LENGTH);
 
   const targets = await prisma.gamanTarget.findMany({
     where: { userId },
@@ -14,7 +14,10 @@ export async function getDashboardData(userId: string) {
       dailyCounts: {
         where: {
           dateKey: {
-            in: historyKeys
+            in: recentKeys
+          },
+          count: {
+            gt: 0
           }
         },
         orderBy: {
@@ -23,6 +26,12 @@ export async function getDashboardData(userId: string) {
       }
     }
   });
+
+  const historyKeys = Array.from(
+    new Set(
+      targets.flatMap((target) => target.dailyCounts.map((record) => record.dateKey))
+    )
+  ).sort((a, b) => b.localeCompare(a));
 
   const targetIds = targets.map((target) => target.id);
   const totals = targetIds.length
